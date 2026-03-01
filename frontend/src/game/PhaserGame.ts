@@ -1,11 +1,11 @@
 // src/game/PhaserGame.ts
 
-import Phaser from 'phaser';
+import Phaser from 'phaser'
 
 // This is a placeholder for a Phaser Scene.
 class GameScene extends Phaser.Scene {
   constructor() {
-    super('GameScene');
+    super('GameScene')
   }
 
   preload() {
@@ -14,7 +14,10 @@ class GameScene extends Phaser.Scene {
 
   create() {
     // Create game objects here
-    this.add.text(10, 10, 'Phaser Game placeholder', { font: '16px Courier', color: '#ffffff' });
+    this.add.text(10, 10, 'Phaser Game placeholder', {
+      font: '16px Courier',
+      color: '#ffffff',
+    })
   }
 
   update() {
@@ -30,7 +33,7 @@ export const createGame = (canvas: HTMLCanvasElement) => {
     height: 600,
     canvas,
     scene: [GameScene],
-  };
+  }
 
-  return new Phaser.Game(config);
-};
+  return new Phaser.Game(config)
+}
