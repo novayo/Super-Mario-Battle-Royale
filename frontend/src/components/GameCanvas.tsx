@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
+import { ASSETS } from '../game/constants/assets';
 
 export const GameCanvas: React.FC = () => {
   const gameContainer = useRef<HTMLDivElement>(null);
@@ -9,23 +10,66 @@ export const GameCanvas: React.FC = () => {
       return;
     }
 
-    class BootScene extends Phaser.Scene {
+    class GameScene extends Phaser.Scene {
+      private player?: Phaser.Physics.Arcade.Sprite;
+
       constructor() {
-        super('BootScene');
+        super('GameScene');
+      }
+
+      preload() {
+        // Load Player Assets
+        this.load.image(
+          ASSETS.IMAGES.CHARACTERS.MARIO.key,
+          ASSETS.IMAGES.CHARACTERS.MARIO.path
+        );
+        this.load.image(
+          ASSETS.IMAGES.CHARACTERS.MARIO_JUMP.key,
+          ASSETS.IMAGES.CHARACTERS.MARIO_JUMP.path
+        );
+
+        // Load Object Assets
+        this.load.image(
+          ASSETS.IMAGES.OBJECTS.BRICK1.key,
+          ASSETS.IMAGES.OBJECTS.BRICK1.path
+        );
+
+        // Load Audio Assets
+        this.load.audio(
+          ASSETS.AUDIO.BGM.OVERWORLD.key,
+          ASSETS.AUDIO.BGM.OVERWORLD.path
+        );
       }
 
       create() {
-        this.add
-          .text(
-            this.cameras.main.width / 2,
-            this.cameras.main.height / 2,
-            'Phaser Engine Ready!',
-            {
-              font: '32px Arial',
-              color: '#ffffff',
-            }
-          )
-          .setOrigin(0.5);
+        // Play Background Music
+        this.sound.play(ASSETS.AUDIO.BGM.OVERWORLD.key, { loop: true });
+
+        // Create Platforms
+        const platforms = this.physics.add.staticGroup();
+        const groundTexture = this.textures.get(ASSETS.IMAGES.OBJECTS.BRICK1.key);
+        const groundWidth = groundTexture.getSourceImage().width;
+
+        for (let x = 0; x <= 800; x += groundWidth) {
+          platforms
+            .create(x, 580, ASSETS.IMAGES.OBJECTS.BRICK1.key)
+            .setOrigin(0, 0)
+            .refreshBody();
+        }
+
+        // Create Player
+        this.player = this.physics.add.sprite(
+          400,
+          100,
+          ASSETS.IMAGES.CHARACTERS.MARIO.key
+        );
+
+        // Player Physics properties
+        this.player.setBounce(0.2);
+        this.player.setCollideWorldBounds(true);
+
+        // Add collision between player and platforms
+        this.physics.add.collider(this.player, platforms);
       }
     }
 
@@ -38,10 +82,10 @@ export const GameCanvas: React.FC = () => {
         default: 'arcade',
         arcade: {
           gravity: { y: 300 },
-          debug: true,
+          debug: false,
         },
       },
-      scene: [BootScene],
+      scene: [GameScene],
     };
 
     const game = new Phaser.Game(config);
