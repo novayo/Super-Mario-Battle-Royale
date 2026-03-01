@@ -26,3 +26,6 @@ dist-ssr
 # macOS
 .DS_Store
 **/.DS_Store
+
+# test coverage folder
+coverage/
