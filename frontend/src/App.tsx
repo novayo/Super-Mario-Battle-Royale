@@ -1,4 +1,4 @@
-import { GameCanvas } from './components/GameCanvas';
+import { GameCanvas } from './components/GameCanvas'
 
 function App() {
   return (
@@ -6,7 +6,7 @@ function App() {
       <h1>Super Mario Battle Royale</h1>
       <GameCanvas />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

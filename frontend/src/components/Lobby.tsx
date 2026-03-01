@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 export const Lobby: React.FC = () => {
   return (
@@ -6,5 +6,5 @@ export const Lobby: React.FC = () => {
       <h2>Game Lobby</h2>
       <p>Players will wait here before the game starts.</p>
     </div>
-  );
-};
+  )
+}
