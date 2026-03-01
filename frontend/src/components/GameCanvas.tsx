@@ -1,75 +1,77 @@
-import React, { useEffect, useRef } from 'react';
-import Phaser from 'phaser';
-import { ASSETS } from '../game/constants/assets';
+import React, { useEffect, useRef } from 'react'
+import Phaser from 'phaser'
+import { ASSETS } from '../game/constants/assets'
 
 export const GameCanvas: React.FC = () => {
-  const gameContainer = useRef<HTMLDivElement>(null);
+  const gameContainer = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!gameContainer.current) {
-      return;
+      return
     }
 
     class GameScene extends Phaser.Scene {
-      private player?: Phaser.Physics.Arcade.Sprite;
+      private player?: Phaser.Physics.Arcade.Sprite
 
       constructor() {
-        super('GameScene');
+        super('GameScene')
       }
 
       preload() {
         // Load Player Assets
         this.load.image(
           ASSETS.IMAGES.CHARACTERS.MARIO.key,
-          ASSETS.IMAGES.CHARACTERS.MARIO.path
-        );
+          ASSETS.IMAGES.CHARACTERS.MARIO.path,
+        )
         this.load.image(
           ASSETS.IMAGES.CHARACTERS.MARIO_JUMP.key,
-          ASSETS.IMAGES.CHARACTERS.MARIO_JUMP.path
-        );
+          ASSETS.IMAGES.CHARACTERS.MARIO_JUMP.path,
+        )
 
         // Load Object Assets
         this.load.image(
           ASSETS.IMAGES.OBJECTS.BRICK1.key,
-          ASSETS.IMAGES.OBJECTS.BRICK1.path
-        );
+          ASSETS.IMAGES.OBJECTS.BRICK1.path,
+        )
 
         // Load Audio Assets
         this.load.audio(
           ASSETS.AUDIO.BGM.OVERWORLD.key,
-          ASSETS.AUDIO.BGM.OVERWORLD.path
-        );
+          ASSETS.AUDIO.BGM.OVERWORLD.path,
+        )
       }
 
       create() {
         // Play Background Music
-        this.sound.play(ASSETS.AUDIO.BGM.OVERWORLD.key, { loop: true });
+        this.sound.play(ASSETS.AUDIO.BGM.OVERWORLD.key, { loop: true })
 
         // Create Platforms
-        const platforms = this.physics.add.staticGroup();
-        const groundTexture = this.textures.get(ASSETS.IMAGES.OBJECTS.BRICK1.key);
-        const groundWidth = groundTexture.getSourceImage().width;
+        const platforms = this.physics.add.staticGroup()
+        const groundTexture = this.textures.get(
+          ASSETS.IMAGES.OBJECTS.BRICK1.key,
+        )
+        const groundWidth = groundTexture.getSourceImage().width
 
         for (let x = 0; x <= 800; x += groundWidth) {
           platforms
             .create(x, 580, ASSETS.IMAGES.OBJECTS.BRICK1.key)
             .setOrigin(0, 0)
-            .refreshBody();
+            .refreshBody()
         }
 
         // Create Player
         this.player = this.physics.add.sprite(
           400,
           100,
-          ASSETS.IMAGES.CHARACTERS.MARIO.key
-        );
+          ASSETS.IMAGES.CHARACTERS.MARIO.key,
+        )
 
         // Player Physics properties
-        this.player.setBounce(0.2);
-        this.player.setCollideWorldBounds(true);
+        this.player.setBounce(0.2)
+        this.player.setCollideWorldBounds(true)
 
         // Add collision between player and platforms
-        this.physics.add.collider(this.player, platforms);
+        this.physics.add.collider(this.player, platforms)
       }
     }
 
@@ -86,15 +88,15 @@ export const GameCanvas: React.FC = () => {
         },
       },
       scene: [GameScene],
-    };
+    }
 
-    const game = new Phaser.Game(config);
+    const game = new Phaser.Game(config)
 
     // Cleanup function to destroy the game instance when the component unmounts
     return () => {
-      game.destroy(true);
-    };
-  }, []); // The empty dependency array ensures this effect runs only once on mount and cleanup on unmount.
+      game.destroy(true)
+    }
+  }, []) // The empty dependency array ensures this effect runs only once on mount and cleanup on unmount.
 
-  return <div ref={gameContainer} />;
-};
+  return <div ref={gameContainer} />
+}
