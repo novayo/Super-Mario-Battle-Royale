@@ -36,7 +36,7 @@ class TestWebSocketProtocol(unittest.TestCase):
         self.assertNotIn("Access-Control-Allow-Origin", response)
 
         # Test with allowed origin
-        allowed = "http://localhost:3000"
+        allowed = "http://localhost:5173"
         response = self.server._get_handshake_response(key, allowed)
         self.assertIn(f"Sec-WebSocket-Accept: {expected_accept}", response)
         self.assertIn(f"Access-Control-Allow-Origin: {allowed}", response)
@@ -322,6 +322,13 @@ class TestWebSocketServer(unittest.TestCase):
                 except Exception as e:
                     if str(e) != "Stop Server":
                         raise
+
+            # Wait for client thread to process
+            start_time = time.time()
+            while time.time() - start_time < 5.0:
+                if mock_client.recv.call_count >= 2:
+                    break
+                time.sleep(0.05)
 
             # Verify mock_client.recv was called at least twice
             # (Handshake loop + Frame loop)

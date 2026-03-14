@@ -1,4 +1,4 @@
 [flake8]
-exclude = server/player_pb2.py
+exclude = player_pb2.py
 max-line-length = 80
 ignore = E203, W503
