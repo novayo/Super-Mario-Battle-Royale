@@ -49,6 +49,17 @@ vi.mock('phaser', () => {
       this.textures = {
         get: vi.fn(() => ({ getSourceImage: () => ({ width: 32 }) })),
       }
+      this.input = {
+        keyboard: {
+          createCursorKeys: vi.fn(() => ({
+            left: { isDown: false },
+            right: { isDown: false },
+            up: { isDown: false },
+            down: { isDown: false },
+            space: { isDown: false },
+          })),
+        },
+      }
     }
     preload() {}
     create() {}
