@@ -41,10 +41,10 @@ npm install
 #### Commands
 - **Start**: `npm run dev`
 - **Build**: `npm run build`
+- **Copy Proto**: `npm run copy-proto`
 - **Test**: `npm test`
 - **Coverage**: `npm run coverage`
 - **Format**: `npm run format`
-- **Lint**: `npm run lint`
 
 ---
 
