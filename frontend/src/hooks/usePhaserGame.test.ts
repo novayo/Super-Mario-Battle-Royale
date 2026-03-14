@@ -34,11 +34,18 @@ vi.mock('phaser', () => {
   class MockScene {
     load: any
     sound: any
+    game: any
+    input: any
     physics: any
     textures: any
     constructor() {
       this.load = { image: vi.fn(), audio: vi.fn() }
       this.sound = { play: mockPlay }
+      this.game = {
+        events: {
+          on: vi.fn(),
+        },
+      }
       this.physics = {
         add: {
           staticGroup: mockStaticGroup,
@@ -105,7 +112,10 @@ describe('usePhaserGame Hook', () => {
     const gameContainer = { current: document.createElement('div') }
     renderHook(() => usePhaserGame(gameContainer))
 
-    const sceneConstructor = mockGame.mock.calls[0][0].scene[0]
+    const config = (mockGame as any).mock.calls[0]?.[0]
+    if (!config) throw new Error('Game config not found')
+    const sceneConstructor = config.scene?.[0]
+    if (!sceneConstructor) throw new Error('Scene constructor not found')
     const sceneInstance = new sceneConstructor()
 
     // Simulate Phaser's lifecycle
@@ -146,7 +156,10 @@ describe('usePhaserGame Hook', () => {
     const gameContainer = { current: document.createElement('div') }
     renderHook(() => usePhaserGame(gameContainer))
 
-    const sceneConstructor = mockGame.mock.calls[0][0].scene[0]
+    const config = (mockGame as any).mock.calls[0]?.[0]
+    if (!config) throw new Error('Game config not found')
+    const sceneConstructor = config.scene?.[0]
+    if (!sceneConstructor) throw new Error('Scene constructor not found')
     const sceneInstance = new sceneConstructor()
 
     // Override the texture mock for this specific test
