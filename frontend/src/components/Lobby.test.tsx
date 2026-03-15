@@ -1,18 +1,60 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { Lobby } from './Lobby'
 
-describe('Lobby Component', () => {
-  it('renders the lobby with a welcome message', () => {
+// Mock GameCanvas to avoid initializing Phaser in tests
+vi.mock('./GameCanvas', () => ({
+  GameCanvas: () => <div data-testid="game-canvas">Game Canvas</div>,
+}))
+
+describe('Lobby', () => {
+  it('renders LandingPage initially', () => {
+    render(<Lobby />)
+    expect(screen.getByText('Super Mario Battle Royale')).toBeDefined()
+    expect(screen.queryByText('Welcome')).toBeNull()
+  })
+
+  it('transitions to Dashboard after nickname is set', () => {
     render(<Lobby />)
 
-    // Check for the heading
-    expect(screen.getByText('Game Lobby')).toBeDefined()
+    const input = screen.getByPlaceholderText('e.g. MarioMaster')
+    fireEvent.change(input, { target: { value: 'TestUser' } })
 
-    // Check for the descriptive paragraph
-    expect(
-      screen.getByText('Players will wait here before the game starts.'),
-    ).toBeDefined()
+    const button = screen.getByRole('button', { name: 'Continue' })
+    fireEvent.click(button)
+
+    expect(screen.getByText('Welcome, TestUser!')).toBeDefined()
+    expect(screen.queryByText('Super Mario Battle Royale')).toBeNull()
+  })
+
+  it('transitions to GameCanvas after joining a room', () => {
+    render(<Lobby />)
+
+    // Set nickname
+    const input = screen.getByPlaceholderText('e.g. MarioMaster')
+    fireEvent.change(input, { target: { value: 'TestUser' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+
+    // Join room
+    const roomInput = screen.getByPlaceholderText('Enter room name...')
+    fireEvent.change(roomInput, { target: { value: 'MyRoom' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Create & Join' }))
+
+    expect(screen.getByTestId('game-canvas')).toBeDefined()
+    expect(screen.queryByText('Welcome, TestUser!')).toBeNull()
+  })
+
+  it('transitions to GameCanvas after joining random room', () => {
+    render(<Lobby />)
+
+    // Set nickname
+    const input = screen.getByPlaceholderText('e.g. MarioMaster')
+    fireEvent.change(input, { target: { value: 'TestUser' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+
+    // Join random
+    fireEvent.click(screen.getByRole('button', { name: 'Join Random Room' }))
+
+    expect(screen.getByTestId('game-canvas')).toBeDefined()
   })
 })

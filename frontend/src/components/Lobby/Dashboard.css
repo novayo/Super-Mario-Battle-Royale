@@ -1,0 +1,240 @@
+/* src/components/Lobby/Dashboard.css */
+
+.dashboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Reusing background effects from LandingPage */
+.dashboard::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(78, 204, 163, 0.3) 0%,
+    transparent 70%
+  );
+  top: -150px;
+  right: -100px;
+  border-radius: 50%;
+  opacity: 0.5;
+  z-index: 0;
+  filter: blur(60px);
+}
+
+.dashboard::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(233, 69, 96, 0.3) 0%,
+    transparent 70%
+  );
+  bottom: -100px;
+  left: -100px;
+  border-radius: 50%;
+  opacity: 0.4;
+  z-index: 0;
+  filter: blur(50px);
+}
+
+.glass-panel.wide {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 800px; /* Wider for dashboard */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  z-index: 1;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #4ecca3, #e94560);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 100px 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .divider {
+    transform: rotate(90deg);
+  }
+}
+
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.dashboard-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.section-desc {
+  color: #a0aabf;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.room-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Reusing input styles */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4ecca3;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 3px rgba(78, 204, 163, 0.2);
+}
+
+/* Reusing button styles with variations */
+.neon-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.neon-button.primary {
+  background: #4ecca3;
+  color: #1a1a2e;
+  box-shadow: 0 4px 15px rgba(78, 204, 163, 0.3);
+}
+
+.neon-button.primary:hover {
+  background: #61f2c2;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 204, 163, 0.5);
+}
+
+.neon-button.secondary {
+  background: transparent;
+  color: #4ecca3;
+  border: 2px solid #4ecca3;
+  box-shadow: 0 4px 15px rgba(78, 204, 163, 0.1);
+}
+
+.neon-button.secondary:hover {
+  background: rgba(78, 204, 163, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 204, 163, 0.2);
+}
+
+.divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #5a657c;
+  font-weight: 600;
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 40%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.divider::before {
+  top: 0;
+}
+.divider::after {
+  bottom: 0;
+}

@@ -1,10 +1,10 @@
-import { GameCanvas } from './components/GameCanvas'
+import { Lobby } from './components/Lobby'
+import './App.css'
 
 function App() {
   return (
-    <div>
-      <h1>Super Mario Battle Royale</h1>
-      <GameCanvas />
+    <div className="app-container">
+      <Lobby />
     </div>
   )
 }

@@ -14,18 +14,27 @@ const {
   mockPhysicsAddStaticGroup,
   mockPhysicsAddCollider,
   mockLoadAudio,
+  mockNetworkService,
 } = vi.hoisted(() => {
   return {
     mockGame: vi.fn(),
     mockAddText: vi.fn(),
-    mockAddSprite: vi.fn().mockReturnValue({
+    mockAddSprite: vi.fn().mockImplementation(() => ({
       setBounce: vi.fn().mockReturnThis(),
       setCollideWorldBounds: vi.fn().mockReturnThis(),
       setVelocityX: vi.fn().mockReturnThis(),
       setVelocityY: vi.fn().mockReturnThis(),
       setFlipX: vi.fn().mockReturnThis(),
-      body: { touching: { down: true } },
-    }),
+      setPosition: vi.fn().mockReturnThis(),
+      setAlpha: vi.fn().mockReturnThis(),
+      destroy: vi.fn(),
+      body: { touching: { down: true }, allowGravity: true },
+    })),
+    mockNetworkService: {
+      init: vi.fn().mockResolvedValue(undefined),
+      onGameState: vi.fn(),
+      sendUpdate: vi.fn(),
+    },
     mockCreateCursorKeys: vi.fn().mockReturnValue({
       left: { isDown: false },
       right: { isDown: false },
@@ -52,6 +61,7 @@ vi.mock('phaser', () => {
     input: any
     load: any
     sound: any
+    game: any
     physics: any
     textures: any
     constructor() {
@@ -83,6 +93,11 @@ vi.mock('phaser', () => {
           getSourceImage: vi.fn().mockReturnValue({ width: 32 }),
         }),
       }
+      this.game = {
+        events: {
+          on: vi.fn(),
+        },
+      }
     }
     preload() {}
     create() {}
@@ -97,6 +112,12 @@ vi.mock('phaser', () => {
     },
   }
 })
+
+vi.mock('./NetworkService', () => ({
+  default: {
+    getInstance: () => mockNetworkService,
+  },
+}))
 
 describe('PhaserGame', () => {
   beforeEach(() => {
@@ -213,5 +234,53 @@ describe('PhaserGame', () => {
     sceneInstance.create()
     sceneInstance.player = undefined
     sceneInstance.update()
+  })
+
+  it('should remove player sprite on disconnect', async () => {
+    const container = document.createElement('div')
+    createGame(container)
+
+    const config = mockGame.mock.calls[0][0]
+    const SceneClass = config.scene[0]
+    const sceneInstance = new SceneClass()
+
+    // Mock network callback extraction
+    let gameStateCallback: (state: any) => void = () => {}
+    mockNetworkService.onGameState.mockImplementation(
+      (cb: (state: any) => void) => {
+        gameStateCallback = cb
+      },
+    )
+
+    sceneInstance.create()
+
+    // Wait for async init to resolve and onGameState to be called
+    await vi.waitFor(() => {
+      expect(mockNetworkService.onGameState).toHaveBeenCalled()
+    })
+
+    // Simulate first game state with player 'yzd13'
+    gameStateCallback({
+      players: [{ playerId: 'yzd13', x: 100, y: 200, flipX: false }],
+    })
+
+    // Verify sprite added (we already use 400,100 in other tests, so we can expect it works if called)
+    expect(mockAddSprite).toHaveBeenCalledWith(
+      100,
+      200,
+      ASSETS.IMAGES.CHARACTERS.MARIO.key,
+    )
+
+    // Simulate second game state where 'yzd13' is missing
+    gameStateCallback({ players: [] })
+
+    // Verify sprite destroyed
+    // Find the sprite created with coordinates (100, 200)
+    const callIndex = mockAddSprite.mock.calls.findIndex(
+      (args: any) => args[0] === 100 && args[1] === 200,
+    )
+    if (callIndex === -1) throw new Error('Sprite not created')
+    const spriteMock = mockAddSprite.mock.results[callIndex].value
+    expect(spriteMock.destroy).toHaveBeenCalled()
   })
 })
