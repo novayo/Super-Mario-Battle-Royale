@@ -32,44 +32,67 @@ CONNECTION_TO_PLAYER = {}
 
 async def handle_message(payload, send_func):
     """
-    Decodes a binary PlayerUpdate Protobuf message, updates global
-    state, and broadcasts the current GameState to all clients.
+    Decodes a binary ClientPlayerUpdate Protobuf message, updates global
+    state with server-assigned player ID, and broadcasts the current
+    GameState to all clients.
     """
     if not isinstance(payload, bytes):
         logger.warning(f"Received non-binary payload: {type(payload)}")
         return
 
     try:
-        update = player_pb2.PlayerUpdate()
+        update = player_pb2.ClientPlayerUpdate()
         update.ParseFromString(payload)
 
         # Update global state for this player
         with state_lock:
-            PLAYERS[update.player_id] = update
+            # Assign player ID if not already assigned
+            if send_func not in CONNECTION_TO_PLAYER:
+                import uuid
+
+                player_id = f"p-{uuid.uuid4().hex[:8]}"
+                CONNECTION_TO_PLAYER[send_func] = player_id
+                logger.info(
+                    f"Assigned player_id {player_id} to connection {send_func}"
+                )
+            else:
+                player_id = CONNECTION_TO_PLAYER[send_func]
+
+            # Construct the full PlayerUpdate for broadcast
+            full_update = player_pb2.PlayerUpdate(
+                player_id=player_id,
+                x=update.x,
+                y=update.y,
+                flip_x=update.flip_x,
+                animation=update.animation,
+            )
+
+            PLAYERS[player_id] = full_update
             CONNECTIONS.add(send_func)
-            CONNECTION_TO_PLAYER[send_func] = update.player_id
             if send_func not in SEND_LOCKS:
                 SEND_LOCKS[send_func] = threading.Lock()
 
             # Create a consistent snapshot of players inside the lock
             players_snapshot = list(PLAYERS.values())
 
-        logger.info(f"Updated player {update.player_id}")
+        logger.info(f"Updated player {player_id}")
 
         # Broadcast the aggregated GameState to all connected clients
         game_state = player_pb2.GameState()
         game_state.players.extend(players_snapshot)
-        await broadcast(game_state.SerializeToString())
+        await broadcast(game_state.SerializeToString(), skip_send=send_func)
 
     except Exception as e:
         logger.error(f"Protobuf communication error: {e}")
 
 
-async def broadcast(data, allow_rebroadcast=True):
+async def broadcast(data, skip_send=None, allow_rebroadcast=True):
     """Sends binary data to all active connections."""
     with state_lock:
         connections = list(CONNECTIONS)
     for send in connections:
+        if skip_send and send == skip_send:
+            continue
         # Check if async
         use_async_lock = False
         async_lock = None

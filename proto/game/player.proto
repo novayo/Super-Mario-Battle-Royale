@@ -15,3 +15,11 @@ message PlayerUpdate {
 message GameState {
   repeated PlayerUpdate players = 1;
 }
+
+// Update from client, without player_id
+message ClientPlayerUpdate {
+  float x = 1;
+  float y = 2;
+  bool flip_x = 3;
+  string animation = 4;
+}

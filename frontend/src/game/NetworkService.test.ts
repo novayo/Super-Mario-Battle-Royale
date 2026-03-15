@@ -13,7 +13,11 @@ vi.mock('protobufjs', () => {
 
   const mockRoot = {
     lookupType: vi.fn((name) => {
-      if (name === 'game.PlayerUpdate' || name === 'game.GameState') {
+      if (
+        name === 'game.PlayerUpdate' ||
+        name === 'game.GameState' ||
+        name === 'game.ClientPlayerUpdate'
+      ) {
         return mockType
       }
       return null
@@ -110,7 +114,6 @@ describe('NetworkService', () => {
     expect(MockWebSocket.instance.readyState).toBe(MockWebSocket.OPEN)
 
     service.sendUpdate({
-      playerId: 'test',
       x: 10,
       y: 20,
       flipX: false,

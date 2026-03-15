@@ -14,29 +14,39 @@ class TestMainLogic(unittest.TestCase):
         main.ASYNC_SEND_LOCKS.clear()
 
     def test_handle_protobuf_message(self):
-        send_mock = MagicMock()
-        update = player_pb2.PlayerUpdate(
-            player_id="p1", x=100.0, y=200.0, flip_x=False, animation="idle"
+        send_mock_sender = MagicMock()
+        send_mock_peer = MagicMock()
+
+        # Add peer to connections
+        main.CONNECTIONS.add(send_mock_peer)
+
+        update = player_pb2.ClientPlayerUpdate(
+            x=100.0, y=200.0, flip_x=False, animation="idle"
         )
         payload = update.SerializeToString()
 
-        # Reset global state for testing - now handled by setUp
+        asyncio.run(main.handle_message(payload, send_mock_sender))
 
-        asyncio.run(main.handle_message(payload, send_mock))
+        # We don't know the server-assigned ID easily, but we can find it
+        player_id = main.CONNECTION_TO_PLAYER.get(send_mock_sender)
+        self.assertIsNotNone(player_id)
 
         # Verify player was added to state
-        self.assertIn("p1", main.PLAYERS)
-        self.assertEqual(main.PLAYERS["p1"].x, 100.0)
+        self.assertIn(player_id, main.PLAYERS)
+        self.assertEqual(main.PLAYERS[player_id].x, 100.0)
 
-        # Verify broadcast was attempted
-        self.assertGreaterEqual(send_mock.call_count, 1)
+        # Verify sender was skipped (no echo)
+        self.assertEqual(send_mock_sender.call_count, 0)
 
-        # Check the last call payload
-        last_payload = send_mock.call_args[0][0]
+        # Verify peer received broadcast
+        self.assertEqual(send_mock_peer.call_count, 1)
+
+        # Check the peer payload
+        last_payload = send_mock_peer.call_args[0][0]
         state = player_pb2.GameState()
         state.ParseFromString(last_payload)
         self.assertEqual(len(state.players), 1)
-        self.assertEqual(state.players[0].player_id, "p1")
+        self.assertEqual(state.players[0].player_id, player_id)
 
     def test_handle_invalid_protobuf(self):
         send_mock = MagicMock()

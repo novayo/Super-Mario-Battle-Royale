@@ -288,6 +288,7 @@ class WebSocketFallbackServer:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind((self.host, self.port))
+        self.port = self.server_socket.getsockname()[1]
         self.server_socket.listen(5)
         logger.info(f"FALLBACK: Server running on ws://{self.host}:{self.port}")
 

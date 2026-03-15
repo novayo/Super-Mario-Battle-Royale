@@ -10,6 +10,7 @@ class NetworkService {
   private root: protobuf.Root | null = null
   private PlayerUpdate: protobuf.Type | null = null
   private GameState: protobuf.Type | null = null
+  private ClientPlayerUpdate: protobuf.Type | null = null
   private listeners: ((state: any) => void)[] = []
   private disposed: boolean = false
   private reconnectTimeout: NodeJS.Timeout | null = null
@@ -47,6 +48,9 @@ class NetworkService {
           this.root = await protobuf.load(protoPath)
           this.PlayerUpdate = this.root.lookupType('game.PlayerUpdate')
           this.GameState = this.root.lookupType('game.GameState')
+          this.ClientPlayerUpdate = this.root.lookupType(
+            'game.ClientPlayerUpdate',
+          )
         }
 
         if (this.socket) {
@@ -138,15 +142,14 @@ class NetworkService {
    * Encodes and sends a player movement update to the server.
    */
   public sendUpdate(update: {
-    playerId: string
     x: number
     y: number
     flipX: boolean
     animation: string
   }): void {
-    if (this.socket?.readyState === WebSocket.OPEN && this.PlayerUpdate) {
-      const message = this.PlayerUpdate.create(update)
-      const buffer = this.PlayerUpdate.encode(message).finish()
+    if (this.socket?.readyState === WebSocket.OPEN && this.ClientPlayerUpdate) {
+      const message = this.ClientPlayerUpdate.create(update)
+      const buffer = this.ClientPlayerUpdate.encode(message).finish()
       this.socket.send(buffer)
     }
   }

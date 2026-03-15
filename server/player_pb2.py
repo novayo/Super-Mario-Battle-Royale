@@ -20,7 +20,7 @@ _sym_db = _symbol_database.Default()
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0cplayer.proto\x12\x04game"Z\n\x0cPlayerUpdate\x12\x11\n\tplayer_id\x18\x01 \x01(\t\x12\t\n\x01x\x18\x02 \x01(\x02\x12\t\n\x01y\x18\x03 \x01(\x02\x12\x0e\n\x06\x66lip_x\x18\x04 \x01(\x08\x12\x11\n\tanimation\x18\x05 \x01(\t"0\n\tGameState\x12#\n\x07players\x18\x01 \x03(\x0b\x32\x12.game.PlayerUpdateb\x06proto3'
+    b'\n\x0cplayer.proto\x12\x04game"Z\n\x0cPlayerUpdate\x12\x11\n\tplayer_id\x18\x01 \x01(\t\x12\t\n\x01x\x18\x02 \x01(\x02\x12\t\n\x01y\x18\x03 \x01(\x02\x12\x0e\n\x06\x66lip_x\x18\x04 \x01(\x08\x12\x11\n\tanimation\x18\x05 \x01(\t"0\n\tGameState\x12#\n\x07players\x18\x01 \x03(\x0b\x32\x12.game.PlayerUpdate"M\n\x12\x43lientPlayerUpdate\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\x0e\n\x06\x66lip_x\x18\x03 \x01(\x08\x12\x11\n\tanimation\x18\x04 \x01(\tb\x06proto3'
 )
 
 _globals = globals()
@@ -32,4 +32,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals["_PLAYERUPDATE"]._serialized_end = 112
     _globals["_GAMESTATE"]._serialized_start = 114
     _globals["_GAMESTATE"]._serialized_end = 162
+    _globals["_CLIENTPLAYERUPDATE"]._serialized_start = 164
+    _globals["_CLIENTPLAYERUPDATE"]._serialized_end = 241
 # @@protoc_insertion_point(module_scope)

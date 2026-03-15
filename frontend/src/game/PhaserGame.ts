@@ -170,7 +170,6 @@ class GameScene extends Phaser.Scene {
     const now = Date.now()
     if (now - this.lastNetworkSend >= NETWORK_TICK_MS) {
       this.network.sendUpdate({
-        playerId: this.playerId,
         x: this.player.x,
         y: this.player.y,
         flipX: this.player.flipX,

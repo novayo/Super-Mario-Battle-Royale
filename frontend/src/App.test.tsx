@@ -2,18 +2,14 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
 
-vi.mock('./components/GameCanvas', () => ({
-  GameCanvas: () => <div data-testid="game-canvas"></div>,
+// Mock Lobby to avoid verifying its internal flow here
+vi.mock('./components/Lobby', () => ({
+  Lobby: () => <div data-testid="lobby">Lobby</div>,
 }))
 
 describe('App Component', () => {
-  it('renders the main application page', () => {
+  it('renders without crashing', () => {
     render(<App />)
-
-    // Check for the main heading
-    expect(screen.getByText('Super Mario Battle Royale')).toBeDefined()
-
-    // Check if the mocked GameCanvas is rendered
-    expect(screen.getByTestId('game-canvas')).toBeDefined()
+    expect(screen.getByTestId('lobby')).toBeDefined()
   })
 })

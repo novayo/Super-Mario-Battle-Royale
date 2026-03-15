@@ -9,12 +9,6 @@ import player_pb2
 
 
 class TestIntegration(unittest.TestCase):
-    def _reserve_port(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("localhost", 0))
-        port = s.getsockname()[1]
-        s.close()
-        return port
 
     def _wait_until_accepting(self, port, timeout=5.0):
         start_time = time.time()
@@ -51,8 +45,7 @@ class TestIntegration(unittest.TestCase):
             self.server_thread.join(timeout=1.0)
 
     def test_player_removed_on_disconnect(self):
-        port = self._reserve_port()
-        self.server = WebSocketFallbackServer(port=port)
+        self.server = WebSocketFallbackServer(port=0)
 
         self.server_thread = threading.Thread(
             target=self.server.start,
@@ -60,6 +53,16 @@ class TestIntegration(unittest.TestCase):
             daemon=True,
         )
         self.server_thread.start()
+
+        # Wait for server to bind and set port
+        def port_ready():
+            return self.server.port != 0
+
+        self._wait_for(port_ready)
+
+        port = self.server.port
+
+        # Wait until accepting
         self.assertTrue(self._wait_until_accepting(port))
 
         # Connect client
@@ -81,8 +84,7 @@ class TestIntegration(unittest.TestCase):
         self.assertIn("101 Switching Protocols", resp)
 
         # Send player update
-        update = player_pb2.PlayerUpdate()
-        update.player_id = "test_player"
+        update = player_pb2.ClientPlayerUpdate()
         update.x = 10
         update.y = 20
         payload = update.SerializeToString()
@@ -102,13 +104,16 @@ class TestIntegration(unittest.TestCase):
         client.sendall(frame)
 
         # Wait for message to be processed
-        self._wait_for(lambda: "test_player" in main.PLAYERS)
+        self._wait_for(lambda: len(main.PLAYERS) == 1)
+        player_id = list(main.PLAYERS.keys())[0]
+        self.assertEqual(main.PLAYERS[player_id].x, 10)
+        self.assertEqual(main.PLAYERS[player_id].y, 20)
 
         # Disconnect client
         client.close()
 
         # Wait for disconnect to be processed
-        self._wait_for(lambda: "test_player" not in main.PLAYERS)
+        self._wait_for(lambda: player_id not in main.PLAYERS)
 
 
 if __name__ == "__main__":
