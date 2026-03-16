@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "npm run copy-proto",
     "build": "tsc -b && vite build",
+    "predev": "npm run copy-proto",
+    "copy-proto": "node scripts/copy-proto.js",
     "lint": "eslint .",
     "format": "prettier --write src",
     "preview": "vite preview",
@@ -14,6 +17,7 @@
   },
   "dependencies": {
     "phaser": "^3.90.0",
+    "protobufjs": "^7.4.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package game;
+
+// Information about a single player's state
+message PlayerUpdate {
+  string player_id = 1;
+  float x = 2;
+  float y = 3;
+  bool flip_x = 4;
+  string animation = 5;
+}
+
+// Global game state broadcast to all clients
+message GameState {
+  repeated PlayerUpdate players = 1;
+}
+
+// Update from client, without player_id
+message ClientPlayerUpdate {
+  float x = 1;
+  float y = 2;
+  bool flip_x = 3;
+  string animation = 4;
+}
